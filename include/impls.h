@@ -1,64 +1,16 @@
 #include <opencv2/opencv.hpp>
 #include <vector>
 
-// 灯条类
-class LightBar {
-public:
-    LightBar() = default;
-    LightBar(const cv::RotatedRect& rect) :
-        rect(rect) {
-        cv::Point2f vertices[4];
-        rect.points(vertices);
-        center = rect.center;
-        height = std::max(rect.size.width, rect.size.height);
-        width = std::min(rect.size.width, rect.size.height);
-        angle = rect.angle;
-        if (rect.size.width > rect.size.height) {
-            angle += 90;
-        }
-    }
+#include <iostream>
 
-    cv::RotatedRect rect;
-    cv::Point2f center;
-    float height = 0;
-    float width = 0;
-    float angle = 0;
-};
+#define ERODE_THRESHOLD 170
+#define CONTOUR_AREA_THRESHOLD 1
+//经过测试，70即可去除字符“3”，150基本只保留灯条，到达240仍然有灯条保留
 
-// 装甲板类
-class Armor {
-public:
-    Armor() = default;
-    Armor(const LightBar& l1, const LightBar& l2) {
-        if (l1.center.x < l2.center.x) {
-            left_light = l1;
-            right_light = l2;
-        } else {
-            left_light = l2;
-            right_light = l1;
-        }
-        center = (left_light.center + right_light.center) / 2;
-    }
+cv::Mat erode_image(const cv::Mat& src, int threshold_value);
 
-    LightBar left_light;
-    LightBar right_light;
-    cv::Point2f center;
-    std::vector<cv::Point2f> armor_pts;
-    cv::Mat rvec, tvec;
-};
+std::vector<cv::RotatedRect> contours_connect(const cv::Mat& src, int threshold_value, const cv::Mat& image);
 
-// 检测器类
-class Detector {
-public:
-    Detector();
-    void process(cv::Mat& frame);
+cv::Mat show_rectangle(const cv::RotatedRect& rrect, int rows, int cols);
 
-private:
-    void findLightBars(const cv::Mat& frame, std::vector<LightBar>& light_bars);
-    void matchArmors(const std::vector<LightBar>& light_bars, std::vector<Armor>& armors);
-    void solvePnP(Armor& armor);
-    void drawResult(cv::Mat& frame, const std::vector<Armor>& armors);
-
-    cv::Mat camera_matrix;
-    cv::Mat dist_coeffs;
-};
+//int bars_connected(cv::Mat& image, const cv::Mat& eroded);

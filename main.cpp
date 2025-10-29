@@ -1,23 +1,19 @@
 #include "impls.h"
-#include <iostream>
+#include "utils.h"
 
 int main() {
     // 读取示例图片
     cv::Mat image = cv::imread("../assets/ap.png");
-    if (image.empty()) {
-        std::cerr << "Error: Could not open or find the image." << std::endl;
-        return -1;
-    }
 
-    // 创建检测器实例
-    Detector detector;
-
-    // 处理图像
-    detector.process(image);
-
-    // 显示结果
-    cv::imshow("Armor Plate Detection", image);
+    cv::Mat processed_image = erode_image(image, ERODE_THRESHOLD);
+    cv::imshow("Eroded image", processed_image);
     cv::waitKey(0);
+    cv::destroyAllWindows();
+
+    std::vector<cv::RotatedRect> rrects = contours_connect(processed_image, CONTOUR_AREA_THRESHOLD, image);
+    cv::imshow("Result image", image);
+    cv::waitKey(0);
+    cv::destroyAllWindows();
 
     return 0;
 }
