@@ -9,7 +9,9 @@
 
 cv::Mat erode_image(const cv::Mat& src, int threshold_value);
 
-std::vector<cv::RotatedRect> contours_connect(const cv::Mat& src, int threshold_value, const cv::Mat& image);
+std::vector<cv::Point2f> contours_connect(const cv::Mat& src, int threshold_value, const cv::Mat& image);
+void estimatePosePnP(const std::vector<cv::Point2f>& image_points, cv::Mat& image);
+void drawAxes(cv::Mat& image, cv::InputArray rvec, cv::InputArray tvec, cv::InputArray cameraMatrix, cv::InputArray distCoeffs, float length);
 
 cv::Mat show_rectangle(const cv::RotatedRect& rrect, int rows, int cols);
 

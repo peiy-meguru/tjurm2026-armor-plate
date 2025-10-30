@@ -10,10 +10,19 @@ int main() {
     cv::waitKey(0);
     cv::destroyAllWindows();
 
-    std::vector<cv::RotatedRect> rrects = contours_connect(processed_image, CONTOUR_AREA_THRESHOLD, image);
-    cv::imshow("Result image", image);
+    cv::Mat contour_image = image.clone();
+    auto armor_points = contours_connect(processed_image, CONTOUR_AREA_THRESHOLD, contour_image);
+    cv::imshow("Connected Contours", contour_image);
     cv::waitKey(0);
     cv::destroyAllWindows();
+
+    if (!armor_points.empty()) {
+        cv::Mat pnp_image = image.clone();
+        estimatePosePnP(armor_points, pnp_image);
+        cv::imshow("PnP Pose", pnp_image);
+        cv::waitKey(0);
+        cv::destroyAllWindows();
+    }
 
     return 0;
 }
